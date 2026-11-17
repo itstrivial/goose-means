@@ -1,0 +1,7 @@
+# Project-local compiler, downloaded archive, and compiler cache.
+.tools/
+
+# Default compiler cache and generated executables.
+.goose/
+main.exe
+main.pdb
