@@ -197,6 +197,7 @@ fn main() {
     const epochs = 10;
     const batch_size = 50;
     const alpha = 0.25;
+    const shuffle_seed: u64 = 43;
 
     const generating_centers: Point[5] = [
         Point { x: -6.0, y: -4.0 },
@@ -214,6 +215,10 @@ fn main() {
     ];
 
     const points = generate_dataset(generating_centers);
+    var shuffled_points: Point[>..] = [];
+    shuffled_points.append(points);
+    var shuffle_rng = rng { shuffle_seed };
+
     var lloyd_centroids = initial_centroids;
     var ema_centroids = initial_centroids;
     var running: EmaStats[>..] = [];
@@ -226,7 +231,8 @@ fn main() {
     for epoch in epochs + 1 {
         if epoch > 0 {
             lloyd_update(points, lloyd_centroids);
-            ema_epoch(points, ema_centroids, running, batch_size, alpha);
+            shuffle(shuffled_points, shuffle_rng);
+            ema_epoch(shuffled_points, ema_centroids, running, batch_size, alpha);
         }
         print(epoch, " | ", mse(points, lloyd_centroids), " | ", mse(points, ema_centroids));
     }
