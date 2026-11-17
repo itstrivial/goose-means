@@ -94,6 +94,17 @@ fn ema_update(batch: const Point[:], centroids: Point[:], running: EmaStats[:], 
     }
 }
 
+fn ema_epoch(points: const Point[:], centroids: Point[:], running: EmaStats[:], batch_size: i64, alpha: f64) {
+    assert(batch_size > 0);
+
+    var start = 0;
+    while start < points.len {
+        let end = start + min(batch_size, points.len - start);
+        ema_update(points[start..end], centroids, running, alpha);
+        start = end;
+    }
+}
+
 fn generate_dataset(centers: const Point[:]) -> Point[>..] {
     const points_per_center = 200;
     const sigma = 1.5;
@@ -113,7 +124,7 @@ fn generate_dataset(centers: const Point[:]) -> Point[>..] {
     return points;
 }
 
-fn check_four_point_example() {
+fn check_full_batch_equivalence() {
     const points: Point[4] = [
         Point { x: 0.0, y: 0.0 },
         Point { x: 0.0, y: 2.0 },
@@ -151,38 +162,41 @@ fn check_four_point_example() {
     assert(ema_centroids == lloyd_centroids);
     assert(running[2] == EmaStats { .. });
 
-    print("Four-point Lloyd and full-batch equivalence checks passed.");
+    print("Four-point Lloyd and full-batch checks passed.");
 }
 
-fn check_ema_update() {
-    const first_batch: Point[5] = [
+fn check_ema_epoch() {
+    const points: Point[6] = [
         Point { x: 0.0, y: 0.0 },
         Point { x: 0.0, y: 1.0 },
         Point { x: 0.0, y: 1.0 },
         Point { x: 0.0, y: 2.0 },
         Point { x: 10.0, y: 2.0 },
+        Point { x: 0.0, y: 4.0 },
     ];
-    const second_batch: Point[1] = [Point { x: 0.0, y: 4.0 }];
     var centroids: Point[2] = [
         Point { x: -1.0, y: 1.0 },
         Point { x: 11.0, y: 1.0 },
     ];
     var running: EmaStats[2] = [EmaStats { .. }; 2];
 
-    ema_update(first_batch, centroids, running, 0.5);
-    ema_update(second_batch, centroids, running, 0.5);
+    ema_epoch(points, centroids, running, 5, 0.5);
 
     assert(running[0] == EmaStats { sum: Point { x: 0.0, y: 3.0 }, count: 1.5 });
     assert(centroids[0] == Point { x: 0.0, y: 2.0 });
     assert(running[1] == EmaStats { sum: Point { x: 2.5, y: 0.5 }, count: 0.25 });
     assert(centroids[1] == Point { x: 10.0, y: 2.0 });
 
-    print("Exponential moving average and empty-cluster decay checks passed.");
+    print("Exponential moving average checks passed.");
 }
 
 fn main() {
-    check_four_point_example();
-    check_ema_update();
+    check_full_batch_equivalence();
+    check_ema_epoch();
+
+    const epochs = 10;
+    const batch_size = 50;
+    const alpha = 0.25;
 
     const generating_centers: Point[5] = [
         Point { x: -6.0, y: -4.0 },
@@ -201,9 +215,19 @@ fn main() {
 
     const points = generate_dataset(generating_centers);
     var lloyd_centroids = initial_centroids;
-    print("Generated ", points.len, " points around ", generating_centers.len, " centers.");
-    print("Mean squared error before training: ", mse(points, lloyd_centroids));
+    var ema_centroids = initial_centroids;
+    var running: EmaStats[>..] = [];
+    running.resize(ema_centroids.len, EmaStats { .. });
 
-    lloyd_update(points, lloyd_centroids);
-    print("Mean squared error after one Lloyd update: ", mse(points, lloyd_centroids));
+    print("Generated ", points.len, " points around ", generating_centers.len, " centers.");
+    print("Mini-batch size: ", batch_size, ", step size: ", alpha);
+    print("Full-dataset mean squared error");
+    print("Epoch | Lloyd | Exponential moving average");
+    for epoch in epochs + 1 {
+        if epoch > 0 {
+            lloyd_update(points, lloyd_centroids);
+            ema_epoch(points, ema_centroids, running, batch_size, alpha);
+        }
+        print(epoch, " | ", mse(points, lloyd_centroids), " | ", mse(points, ema_centroids));
+    }
 }
