@@ -36,4 +36,4 @@ The program uses a fixed seed to generate 1,000 points in five overlapping cloud
 
 The program reports median mean squared error (MSE) across 20 runs before training and after each epoch. After 10 epochs, median MSE was 10.6833 for Lloyd and 10.4291 for Mini-batch (EMA) k-means. The EMA variant achieved lower error in **15 of 20** runs.
 
-The code leaves out the [paper's](https://arxiv.org/abs/2611.09501) automatic parameter selection, initialization scheme, step-size schedule, cluster revival, and finalization.
+The code doesn't implement the [paper's](https://arxiv.org/abs/2611.09501) automatic parameter selection, initialization scheme, step-size schedule, cluster revival, and finalization.
