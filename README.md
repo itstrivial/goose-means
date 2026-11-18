@@ -34,6 +34,6 @@ The program uses a fixed seed to generate 1,000 points in five overlapping cloud
 - **Lloyd's $k$-means** assigns all 1,000 points to their nearest centroids, then moves each centroid to the mean of its assigned points. Empty clusters keep their previous centroids.
 - **Mini-batch (EMA) $k$-means** shuffles the points before each pass and updates the centroids after every 50 points. With a fixed step size, it updates an exponential moving average (EMA) of each cluster's point sum and count, then divides the sum by the count.
 
-The program reports median mean squared error (MSE) across 20 runs before training and after each epoch. After 10 epochs, median MSE was 10.6833 for Lloyd and 10.4291 for Mini-batch (EMA) k-means. The EMA variant achieved lower error in **15 of 20** runs.
+The program reports median mean squared error (MSE) across 20 runs before training and after each epoch. After 10 epochs, median MSE was 10.6833 for Lloyd and 10.4291 for mini-batch (EMA) $k$-means. The EMA variant achieved lower error in **15 of 20** runs.
 
 The code doesn't implement the [paper's](https://arxiv.org/abs/2611.09501) automatic parameter selection, initialization scheme, step-size schedule, cluster revival, and finalization.
