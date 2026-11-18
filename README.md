@@ -31,8 +31,8 @@ $env:GOOSE_HOME = Join-Path $PWD '.tools\goose-home'
 
 The program uses a fixed seed to generate 1,000 points in five overlapping clouds, then reuses that dataset for all 20 runs. Each run picks five points as starting centroids and gives the same positions to both methods.
 
-- **Lloyd's k-means** assigns all 1,000 points to their nearest centroids, then moves each centroid to the mean of its assigned points. Empty clusters keep their previous centroids.
-- **Mini-batch (EMA) k-means** shuffles the points before each pass and updates the centroids after every 50 points. With a fixed step size of `0.25`, it updates an exponential moving average (EMA) of each cluster's point sum and count, then divides the sum by the count.
+- **Lloyd's $k$-means** assigns all 1,000 points to their nearest centroids, then moves each centroid to the mean of its assigned points. Empty clusters keep their previous centroids.
+- **Mini-batch (EMA) $k$-means** shuffles the points before each pass and updates the centroids after every 50 points. With a fixed step size, it updates an exponential moving average (EMA) of each cluster's point sum and count, then divides the sum by the count.
 
 The program reports median mean squared error (MSE) across 20 runs before training and after each epoch. After 10 epochs, median MSE was 10.6833 for Lloyd and 10.4291 for Mini-batch (EMA) k-means. The EMA variant achieved lower error in **15 of 20** runs.
 
