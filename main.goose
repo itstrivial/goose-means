@@ -199,7 +199,7 @@ fn run_experiment() {
     var curves: EpochLoss[epochs + 1][run_count] = [[EpochLoss { .. }; epochs + 1]; run_count];
     var ema_wins = 0;
 
-    print("Lloyd vs. Mini-batch (EMA) k-means.");
+    print("Lloyd vs. EMA method.");
     print(points.len, " points in ", cluster_count, " overlapping clouds.");
     print(run_count, " runs. Both methods start at the same centroids in each run.");
     print(epochs, " epochs, ", batch_size, " points per mini-batch, step size ", alpha, ".");
@@ -216,7 +216,7 @@ fn run_experiment() {
 
     print("");
     print("Mean squared error (median across runs):");
-    print("Epoch |   Lloyd | Mini-batch (EMA)");
+    print("Epoch |   Lloyd | EMA");
     for epoch in epochs + 1 {
         var lloyd_errors: f64[run_count] = [0.0; run_count];
         var ema_errors:   f64[run_count] = [0.0; run_count];
@@ -237,13 +237,13 @@ fn run_experiment() {
         print(row);
     }
     print("");
-    print("After ", epochs, " epochs, Mini-batch (EMA) had lower error in ", ema_wins, " of ", run_count, " runs.");
+    print("After ", epochs, " epochs, EMA method had lower error in ", ema_wins, " of ", run_count, " runs.");
 }
 
 fn main() {
     check_full_batch_equivalence();
     check_ema_epoch();
-    print("Checks passed.");
+    print("All checks passed.");
     print("");
     run_experiment();
 }
